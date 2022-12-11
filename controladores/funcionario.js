@@ -2,7 +2,7 @@ const { pool } = require('../config');
 const { request, response } = require('express');
 
 const getFuncionario = (request, response) => {
-    pool.query('SELECT * from funcionario order by id desc',
+    pool.query('SELECT * from funcionario order by codigo desc',
         (error, results) => {
             if (error) {
                 return response.status(400).json({
@@ -17,8 +17,8 @@ const getFuncionario = (request, response) => {
 const addFuncionario = (request, response) => {
     const { cpf, nascimento, nome, rg,empresa } = request.body;
 
-    pool.query('insert into funcionario (cpf, nascimento, nome,rg,empresa) values ($1,$2,$3,$4,$5) returning id, cpf, nascimento,nome,rg,empresa',
-        [cpf, nascimento, nome, rg,empresa],
+    pool.query('insert into funcionario (cpf, nome,rg,empresa) values ($1,$2,$3,$4,) returning codigo, cpf,nome,rg,empresa',
+        [cpf,nome, rg,empresa],
         (error, results) => {
             if (error) {
                 return response.status(400).json({
@@ -31,10 +31,10 @@ const addFuncionario = (request, response) => {
 }
 
 const updateFuncionario = (request, response) => {
-    const { id, nome, cpf, rg } = request.body;
+    const { codigo, nome, cpf, rg } = request.body;
 
     pool.query('UPDATE funcionario SET nome=$1, cpf=$2, rg=$3 where id = $4 returning id,nome,cpf,rg',
-        [nome, cpf, rg, id],
+        [nome, cpf, rg, codigo],
         (error, results) => {
             if (error) {
                 return response.status(400).json({
@@ -50,8 +50,8 @@ const updateFuncionario = (request, response) => {
 }
 
 const deleteFuncionario = (request, response) => {
-    const codigo = parseInt(request.params.id);
-    pool.query('DELETE FROM funcionario WHERE id = $1',
+    const codigo = parseInt(request.params.codigo);
+    pool.query('DELETE FROM funcionario WHERE codigo = $1',
         [codigo],
         (error, results) => {
             if (error || results.rowCount == 0) {
@@ -69,8 +69,8 @@ const deleteFuncionario = (request, response) => {
 
 
 const getFuncionarioPorCodigo = (request, response) => {
-    const codigo = parseInt(request.params.id);
-    pool.query('SELECT * FROM funcionario WHERE id=$1',
+    const codigo = parseInt(request.params.codigo);
+    pool.query('SELECT * FROM funcionario WHERE codigo=$1',
         [codigo],
         (error, results) => {
             if (error || results.rowCount == 0) {
